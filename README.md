@@ -1,16 +1,23 @@
-# todoapp
+# Todo App
 
-A new Flutter project.
+A simple Flutter app for managing your to-do list using a REST API.
+
+## Features
+
+- View a list of tasks
+- Add a new task
+- Mark tasks as completed
+- Delete tasks
+- Edit existing tasks
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+Follow these instructions to get the app up and running on your local machine.
 
-A few resources to get you started if this is your first Flutter project:
+### Prerequisites
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+- Flutter SDK
+- Dart SDK
+- Git
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+### Installation

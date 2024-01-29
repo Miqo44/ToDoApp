@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../models/models.dart';
 
@@ -24,8 +25,12 @@ class _TodoListScreenState extends State<TodoListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Todo List'),
+        title: const Text(
+          'Todo List',
+          style: TextStyle(color: Colors.white),
+        ),
         centerTitle: true,
+        backgroundColor: Colors.blueAccent,
       ),
       body: FutureBuilder<List<Todo>>(
         future: _tasksFuture,
@@ -40,6 +45,7 @@ class _TodoListScreenState extends State<TodoListScreen> {
                   title: Text(task.title),
                   subtitle: Text(task.description),
                   leading: Checkbox(
+                    activeColor: Colors.blueAccent,
                     value: task.completed,
                     onChanged: (value) {
                       setState(() {
@@ -70,15 +76,17 @@ class _TodoListScreenState extends State<TodoListScreen> {
                     },
                   ),
                   onLongPress: () async {
-                    await _editTaskDialog(context, this, task, (bool value, String description) {
+                    await _editTaskDialog(context, this, task,
+                        (bool value, String description) {
                       setState(() {
                         task.setCompleted(value);
-                        task.updateTask(task.title, value, description); // Update the description
-                        widget.apiService.updateTask(task.id, task.title, value, description);
+                        task.updateTask(task.title, value,
+                            description);
+                        widget.apiService.updateTask(
+                            task.id, task.title, value, description);
                       });
                     });
                   },
-
                 );
               },
             );
@@ -92,23 +100,29 @@ class _TodoListScreenState extends State<TodoListScreen> {
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.add),
         onPressed: () async {
-          _newTaskTitle = ''; // Reset the variable before showing the dialog
+          _newTaskTitle = '';
           final title = await showDialog<String>(
             context: context,
             builder: (context) => AlertDialog(
               title: const Text('New Task'),
               content: TextField(
                 onChanged: (value) {
-                  _newTaskTitle = value; // Capture the entered title
+                  _newTaskTitle = value;
                 },
               ),
               actions: [
                 TextButton(
-                  child: const Text('Cancel'),
+                  child: const Text(
+                    'Cancel',
+                    style: TextStyle(color: Colors.black),
+                  ),
                   onPressed: () => Navigator.pop(context),
                 ),
                 TextButton(
-                  child: const Text('Add'),
+                  child: const Text(
+                    'Add',
+                    style: TextStyle(color: Colors.black),
+                  ),
                   onPressed: () async {
                     await widget.apiService.createTask(_newTaskTitle).then((_) {
                       setState(() {
@@ -118,13 +132,12 @@ class _TodoListScreenState extends State<TodoListScreen> {
                             Todo(
                               id: tasks.length + 1,
                               title: _newTaskTitle,
-                              description: "",  // Provide a default or retrieve it from user input
+                              description: "",
                               completed: false,
                             ),
                           );
-                          return tasks;  // Make sure to return the updated tasks list
+                          return tasks;
                         });
-
                         Navigator.pop(context, 'Task added');
                       });
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -164,7 +177,8 @@ class _TodoListScreenState extends State<TodoListScreen> {
     );
   }
 
-  Future<void> _editTaskDialog(BuildContext context, _TodoListScreenState state, Todo task, Function(bool, String) onTaskUpdated) async {
+  Future<void> _editTaskDialog(BuildContext context, _TodoListScreenState state,
+      Todo task, Function(bool, String) onTaskUpdated) async {
     String newTitle = task.title;
     String newDescription = task.description;
     bool newCompleted = task.completed;
@@ -182,38 +196,43 @@ class _TodoListScreenState extends State<TodoListScreen> {
                 newTitle = value;
               },
               controller: TextEditingController(text: task.title),
-              decoration: InputDecoration(labelText: 'Title'),
+              decoration: const InputDecoration(labelText: 'Title'),
             ),
             TextField(
               onChanged: (value) {
                 newDescription = value;
               },
               controller: TextEditingController(text: task.description),
-              decoration: InputDecoration(labelText: 'Description'),
-            ),
-            Checkbox(
-              value: newCompleted,
-              onChanged: (value) {
-                onTaskUpdated(value ?? false, newDescription);
-              },
+              decoration: const InputDecoration(labelText: 'Description'),
             ),
           ],
         ),
         actions: [
           TextButton(
-            child: const Text('Cancel'),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(color: Colors.black),
+            ),
             onPressed: () => Navigator.pop(context),
           ),
           TextButton(
-            child: const Text('Save'),
+            child: const Text(
+              'Save',
+              style: TextStyle(color: Colors.black),
+            ),
             onPressed: () async {
-              // Update the task with the new title, description, and completion status
-              task.updateTask(newTitle, newCompleted, newDescription);
-              await state.widget.apiService.updateTask(task.id, newTitle, newCompleted, newDescription);
-
-              state.setState(() {
-                Navigator.pop(context, 'Task updated');
-              });
+              try {
+                task.updateTask(newTitle, newCompleted, newDescription);
+                await state.widget.apiService.updateTask(
+                    task.id, newTitle, newCompleted, newDescription);
+                state.setState(() {
+                  Navigator.pop(context, 'Task updated');
+                });
+              } catch (e) {
+                if (kDebugMode) {
+                  print('Error updating task: $e');
+                }
+              }
             },
           ),
         ],

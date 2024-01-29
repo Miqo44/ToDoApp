@@ -77,14 +77,10 @@ class ApiService {
     }
   }
 
-  Future<void> updateTask(int id, String newTitle, bool newCompleted, String newDescription) async {
-    final response = await http.put(
-      Uri.parse('$apiUrl/$id'),
-      body: jsonEncode({'title': newTitle, 'completed': newCompleted, 'description': newDescription}),
-      headers: {'Content-Type': 'application/json'},
-    );
-
-    if (response.statusCode != 200) {
+  Future<void> updateTask(int taskId, String title, bool completed, String description) async {
+    try {
+    } catch (e) {
+      print('Error updating task: $e');
       throw Exception('Failed to update task');
     }
   }

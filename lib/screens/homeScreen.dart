@@ -107,7 +107,7 @@ class _TodoListScreenState extends State<TodoListScreen> {
                     await widget.apiService.createTask(_newTaskTitle).then((_) {
                       setState(() {
                         _tasksFuture = _tasksFuture.then((tasks) {
-                          tasks.add(Todo(id: tasks.length + 1, title: _newTaskTitle, completed: false));
+                          tasks.insert(0, Todo(id: tasks.length + 1, title: _newTaskTitle, completed: false));
                           return tasks;
                         });
                         Navigator.pop(context, 'Task added');
@@ -131,9 +131,6 @@ class _TodoListScreenState extends State<TodoListScreen> {
           );
           if (title != null) {
             widget.apiService.createTask(title).then((_) {
-              setState(() {
-                _tasksFuture = widget.apiService.getTasks();
-              });
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
                   content: Text('Task added successfully.'),
@@ -173,7 +170,7 @@ class _TodoListScreenState extends State<TodoListScreen> {
                 Checkbox(
                   value: newCompleted,
                   onChanged: (value) {
-                    newCompleted = value!;
+                    newCompleted = !value!;
                   },
                 ),
               ],
@@ -193,7 +190,7 @@ class _TodoListScreenState extends State<TodoListScreen> {
 
                   state.setState(() {
                     // Refresh the UI
-                    state._tasksFuture = state.widget.apiService.getTasks();
+                    // state._tasksFuture = state.widget.apiService.getTasks();
                     Navigator.pop(context, 'Task updated');
                   });
                 },

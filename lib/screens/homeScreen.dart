@@ -37,8 +37,9 @@ class _TodoListScreenState extends State<TodoListScreen> {
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             final tasks = snapshot.data!;
-            return ListView.builder(
+            return ListView.separated(
               itemCount: tasks.length,
+              separatorBuilder: (context, index) => const Divider(height: 10, color: Colors.blueAccent,), // You can customize the separator
               itemBuilder: (context, index) {
                 final task = tasks[index];
                 return ListTile(

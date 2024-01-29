@@ -5,11 +5,13 @@ import 'package:http/http.dart' as http;
 class Todo {
   final int id;
   String title;
+  String description; // Add a description field
   bool completed;
 
   Todo({
     required this.id,
     required this.title,
+    required this.description, // Initialize description in the constructor
     required this.completed,
   });
 
@@ -17,6 +19,7 @@ class Todo {
     return Todo(
       id: json['id'],
       title: json['title'],
+      description: json['description'] ?? '', // Handle null description
       completed: json['completed'],
     );
   }
@@ -25,9 +28,10 @@ class Todo {
     completed = value;
   }
 
-  void updateTask(String newTitle, bool newCompleted) {
+  void updateTask(String newTitle, bool newCompleted, String newDescription) {
     title = newTitle;
     completed = newCompleted;
+    description = newDescription;
   }
 }
 
@@ -73,10 +77,10 @@ class ApiService {
     }
   }
 
-  Future<void> updateTask(int id, String newTitle, bool newCompleted) async {
+  Future<void> updateTask(int id, String newTitle, bool newCompleted, String newDescription) async {
     final response = await http.put(
       Uri.parse('$apiUrl/$id'),
-      body: jsonEncode({'title': newTitle, 'completed': newCompleted}),
+      body: jsonEncode({'title': newTitle, 'completed': newCompleted, 'description': newDescription}),
       headers: {'Content-Type': 'application/json'},
     );
 

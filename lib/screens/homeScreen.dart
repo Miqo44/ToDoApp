@@ -38,6 +38,7 @@ class _TodoListScreenState extends State<TodoListScreen> {
                 final task = tasks[index];
                 return ListTile(
                   title: Text(task.title),
+                  subtitle: Text(task.description),
                   leading: Checkbox(
                     value: task.completed,
                     onChanged: (value) {
@@ -69,8 +70,15 @@ class _TodoListScreenState extends State<TodoListScreen> {
                     },
                   ),
                   onLongPress: () async {
-                    await _editTaskDialog(context, this, task);
+                    await _editTaskDialog(context, this, task, (bool value, String description) {
+                      setState(() {
+                        task.setCompleted(value);
+                        task.updateTask(task.title, value, description); // Update the description
+                        widget.apiService.updateTask(task.id, task.title, value, description);
+                      });
+                    });
                   },
+
                 );
               },
             );
@@ -106,13 +114,17 @@ class _TodoListScreenState extends State<TodoListScreen> {
                       setState(() {
                         _tasksFuture = _tasksFuture.then((tasks) {
                           tasks.insert(
-                              0,
-                              Todo(
-                                  id: tasks.length + 1,
-                                  title: _newTaskTitle,
-                                  completed: false));
-                          return tasks;
+                            0,
+                            Todo(
+                              id: tasks.length + 1,
+                              title: _newTaskTitle,
+                              description: "",  // Provide a default or retrieve it from user input
+                              completed: false,
+                            ),
+                          );
+                          return tasks;  // Make sure to return the updated tasks list
                         });
+
                         Navigator.pop(context, 'Task added');
                       });
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -152,9 +164,9 @@ class _TodoListScreenState extends State<TodoListScreen> {
     );
   }
 
-  Future<void> _editTaskDialog(
-      BuildContext context, _TodoListScreenState state, Todo task) async {
+  Future<void> _editTaskDialog(BuildContext context, _TodoListScreenState state, Todo task, Function(bool, String) onTaskUpdated) async {
     String newTitle = task.title;
+    String newDescription = task.description;
     bool newCompleted = task.completed;
 
     await showDialog<String>(
@@ -170,6 +182,20 @@ class _TodoListScreenState extends State<TodoListScreen> {
                 newTitle = value;
               },
               controller: TextEditingController(text: task.title),
+              decoration: InputDecoration(labelText: 'Title'),
+            ),
+            TextField(
+              onChanged: (value) {
+                newDescription = value;
+              },
+              controller: TextEditingController(text: task.description),
+              decoration: InputDecoration(labelText: 'Description'),
+            ),
+            Checkbox(
+              value: newCompleted,
+              onChanged: (value) {
+                onTaskUpdated(value ?? false, newDescription);
+              },
             ),
           ],
         ),
@@ -181,10 +207,9 @@ class _TodoListScreenState extends State<TodoListScreen> {
           TextButton(
             child: const Text('Save'),
             onPressed: () async {
-              // Update the task with the new title and completion status
-              task.updateTask(newTitle, newCompleted);
-              await state.widget.apiService
-                  .updateTask(task.id, newTitle, newCompleted);
+              // Update the task with the new title, description, and completion status
+              task.updateTask(newTitle, newCompleted, newDescription);
+              await state.widget.apiService.updateTask(task.id, newTitle, newCompleted, newDescription);
 
               state.setState(() {
                 Navigator.pop(context, 'Task updated');

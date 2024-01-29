@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import '../models/models.dart';
 
 class TodoListScreen extends StatefulWidget {
@@ -13,7 +12,7 @@ class TodoListScreen extends StatefulWidget {
 
 class _TodoListScreenState extends State<TodoListScreen> {
   late Future<List<Todo>> _tasksFuture;
-  late String _newTaskTitle = ''; // Declare variable to capture entered title
+  late String _newTaskTitle = '';
 
   @override
   void initState() {
@@ -103,11 +102,15 @@ class _TodoListScreenState extends State<TodoListScreen> {
                 TextButton(
                   child: const Text('Add'),
                   onPressed: () async {
-                    // Create a new task with the captured title
                     await widget.apiService.createTask(_newTaskTitle).then((_) {
                       setState(() {
                         _tasksFuture = _tasksFuture.then((tasks) {
-                          tasks.insert(0, Todo(id: tasks.length + 1, title: _newTaskTitle, completed: false));
+                          tasks.insert(
+                              0,
+                              Todo(
+                                  id: tasks.length + 1,
+                                  title: _newTaskTitle,
+                                  completed: false));
                           return tasks;
                         });
                         Navigator.pop(context, 'Task added');
@@ -148,56 +151,48 @@ class _TodoListScreenState extends State<TodoListScreen> {
       ),
     );
   }
-  Future<void> _editTaskDialog(BuildContext context, _TodoListScreenState state, Todo task) async {
+
+  Future<void> _editTaskDialog(
+      BuildContext context, _TodoListScreenState state, Todo task) async {
     String newTitle = task.title;
     bool newCompleted = task.completed;
 
     await showDialog<String>(
       context: context,
-      builder: (context) =>
-          AlertDialog(
-            title: const Text('Edit Task'),
-            content: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  onChanged: (value) {
-                    newTitle = value;
-                  },
-                  controller: TextEditingController(text: task.title),
-                ),
-                Checkbox(
-                  value: newCompleted,
-                  onChanged: (value) {
-                    newCompleted = !value!;
-                  },
-                ),
-              ],
+      builder: (context) => AlertDialog(
+        title: const Text('Edit Task'),
+        content: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              onChanged: (value) {
+                newTitle = value;
+              },
+              controller: TextEditingController(text: task.title),
             ),
-            actions: [
-              TextButton(
-                child: const Text('Cancel'),
-                onPressed: () => Navigator.pop(context),
-              ),
-              TextButton(
-                child: const Text('Save'),
-                onPressed: () async {
-                  // Update the task with the new title and completion status
-                  task.updateTask(newTitle, newCompleted);
-                  await state.widget.apiService.updateTask(
-                      task.id, newTitle, newCompleted);
-
-                  state.setState(() {
-                    // Refresh the UI
-                    // state._tasksFuture = state.widget.apiService.getTasks();
-                    Navigator.pop(context, 'Task updated');
-                  });
-                },
-              ),
-            ],
+          ],
+        ),
+        actions: [
+          TextButton(
+            child: const Text('Cancel'),
+            onPressed: () => Navigator.pop(context),
           ),
+          TextButton(
+            child: const Text('Save'),
+            onPressed: () async {
+              // Update the task with the new title and completion status
+              task.updateTask(newTitle, newCompleted);
+              await state.widget.apiService
+                  .updateTask(task.id, newTitle, newCompleted);
+
+              state.setState(() {
+                Navigator.pop(context, 'Task updated');
+              });
+            },
+          ),
+        ],
+      ),
     );
   }
 }
-

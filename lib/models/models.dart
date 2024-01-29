@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 class Todo {
   final int id;
   String title;
-  bool completed;  // Make 'completed' non-final
+  bool completed;
 
   Todo({
     required this.id,
@@ -21,7 +21,6 @@ class Todo {
     );
   }
 
-  // Add this method to set the completion status
   void setCompleted(bool value) {
     completed = value;
   }

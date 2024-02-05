@@ -17,7 +17,12 @@ Follow these instructions to get the app up and running on your local machine.
 ### Prerequisites
 
 - Flutter SDK
+- Flutter MOBX
+- MOBX
+- Build Runner
+- MOBX Codegen
 - Dart SDK
 - Git
+
 
 ### Installation

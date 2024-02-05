@@ -1,24 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:todoapp/screens/homeScreen.dart';
-import 'models/models.dart';
+import 'Screens/todo_list_screen.dart';
+import 'models/todo_store.dart';
 
 void main() {
-  runApp(TodoApp());
+  runApp(MyApp());
 }
 
-class TodoApp extends StatelessWidget {
-  final ApiService apiService = ApiService();
+class MyApp extends StatelessWidget {
+  final TodoStore todoStore = TodoStore();
 
-  TodoApp({super.key});
+  MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Todo App',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: TodoListScreen(apiService: apiService),
+      title: 'MobX Todo App',
+      home: TodoListScreen(todoStore: todoStore),
     );
   }
 }

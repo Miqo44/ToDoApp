@@ -5,21 +5,10 @@ import '../models/todo_store.dart';
 import 'add_screen.dart';
 import 'edit_screen.dart';
 
-class TodoListScreen extends StatefulWidget {
+class TodoListScreen extends StatelessWidget {
   final TodoStore todoStore;
 
   const TodoListScreen({super.key, required this.todoStore});
-
-  @override
-  _TodoListScreenState createState() => _TodoListScreenState();
-}
-
-class _TodoListScreenState extends State<TodoListScreen> {
-  @override
-  void initState() {
-    super.initState();
-    widget.todoStore.fetchTodos();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,44 +17,65 @@ class _TodoListScreenState extends State<TodoListScreen> {
         title: const Text('MobX Todo App'),
         centerTitle: true,
       ),
-      body: Observer(
-        builder: (_) {
-          return ListView.separated(
-            separatorBuilder: (context, index) => const Divider(
-              height: 10,
-              color: Colors.black,
-            ),
-            itemCount: widget.todoStore.todos.length,
-            itemBuilder: (context, index) {
-              final todo = widget.todoStore.todos[index];
-              return ListTile(
-                onTap: () => _editTodoDescription(
-                  context,
-                  index,
-                  todo.title,
-                  todo.description,
-                ),
-                title: Text(todo.title),
-                subtitle: Text(todo.description),
-                leading: StatefulBuilder(
-                  builder: (context, setState) {
-                    return Checkbox(
-                      value: todo.completed,
-                      onChanged: (_) {
-                        setState(() {
-                          widget.todoStore.toggleCompleted(index);
-                        });
-                      },
-                    );
-                  },
-                ),
-                trailing: IconButton(
-                  icon: const Icon(Icons.delete),
-                  onPressed: () => widget.todoStore.deleteTodo(index),
-                ),
-              );
-            },
-          );
+      body: FutureBuilder<void>(
+        future: todoStore.fetchTodos(),
+        builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          } else if (snapshot.hasError) {
+            return Center(
+              child: Text('Error: ${snapshot.error}'),
+            );
+          } else {
+            return Observer(
+              builder: (_) {
+                if (todoStore.todos.isEmpty) {
+                  return const Center(
+                    child: Text('No todos available'),
+                  );
+                } else {
+                  return ListView.separated(
+                    separatorBuilder: (context, index) => const Divider(
+                      height: 10,
+                      color: Colors.black,
+                    ),
+                    itemCount: todoStore.todos.length,
+                    itemBuilder: (context, index) {
+                      final todo = todoStore.todos[index];
+                      return ListTile(
+                        onTap: () => _editTodoDescription(
+                          context,
+                          index,
+                          todo.title,
+                          todo.description,
+                        ),
+                        title: Text(todo.title),
+                        subtitle: Text(todo.description),
+                        leading: StatefulBuilder(
+                          builder: (context, setState) {
+                            return Checkbox(
+                              value: todo.completed,
+                              onChanged: (_) {
+                                setState(() {
+                                  todoStore.toggleCompleted(index);
+                                });
+                              },
+                            );
+                          },
+                        ),
+                        trailing: IconButton(
+                          icon: const Icon(Icons.delete),
+                          onPressed: () => _confirmDelete(context, index, todoStore),
+                        ),
+                      );
+                    },
+                  );
+                }
+              },
+            );
+          }
         },
       ),
       floatingActionButton: FloatingActionButton(
@@ -78,7 +88,7 @@ class _TodoListScreenState extends State<TodoListScreen> {
           );
 
           if (newTodo != null) {
-            widget.todoStore.addTodo(newTodo);
+            todoStore.addTodo(newTodo);
           }
         },
         child: const Icon(Icons.add),
@@ -99,12 +109,42 @@ class _TodoListScreenState extends State<TodoListScreen> {
     );
 
     if (editedData != null) {
-      final editedTodo = widget.todoStore.todos[index].copyWith(
+      final editedTodo = todoStore.todos[index].copyWith(
         title: editedData['title'] ?? currentTitle,
         description: editedData['description'] ?? currentDescription,
       );
 
-      widget.todoStore.editTodo(index, editedTodo);
+      todoStore.editTodo(index, editedTodo);
+    }
+  }
+
+  Future<void> _confirmDelete(BuildContext context, int index, TodoStore todoStore) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Confirm Delete'),
+          content: const Text('Are you sure you want to delete this todo?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(false); // Not confirmed
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(true); // Confirmed
+              },
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed != null && confirmed) {
+      todoStore.deleteTodo(index);
     }
   }
 }

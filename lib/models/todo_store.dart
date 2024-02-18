@@ -12,6 +12,9 @@ abstract class _TodoStore with Store {
   @observable
   ObservableList<Todo> todos = ObservableList<Todo>();
 
+  @observable
+  bool isSortAscending = true;
+
   @action
   Future<void> fetchTodos() async {
     try {
@@ -48,5 +51,20 @@ abstract class _TodoStore with Store {
   @action
   void toggleCompleted(int index) {
     todos[index].completed = !todos[index].completed;
+  }
+
+  @action
+  void sortTasksByCompletion() {
+    todos.sort((a, b) {
+      if (a.completed && !b.completed) {
+        return isSortAscending ? -1 : 1;
+      } else if (!a.completed && b.completed) {
+        return isSortAscending ? 1 : -1;
+      } else {
+        return 0;
+      }
+    });
+
+    isSortAscending = !isSortAscending;
   }
 }

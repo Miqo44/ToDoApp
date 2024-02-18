@@ -16,6 +16,14 @@ class TodoListScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('MobX Todo App'),
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.sort),
+            onPressed: () {
+              todoStore.sortTasksByCompletion();
+            },
+          ),
+        ],
       ),
       body: FutureBuilder<void>(
         future: todoStore.fetchTodos(),

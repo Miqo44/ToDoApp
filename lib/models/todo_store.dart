@@ -34,7 +34,6 @@ abstract class _TodoStore with Store {
 
   @action
   void addTodo(Todo todo) {
-    todos.add(todo);
     todos.insert(0, todo);
   }
 

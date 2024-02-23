@@ -8,7 +8,7 @@ import 'edit_screen.dart';
 class TodoListScreen extends StatelessWidget {
   final TodoStore todoStore;
 
-  const TodoListScreen({super.key, required this.todoStore});
+  const TodoListScreen({Key? key, required this.todoStore}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -37,51 +37,72 @@ class TodoListScreen extends StatelessWidget {
               child: Text('Error: ${snapshot.error}'),
             );
           } else {
-            return Observer(
-              builder: (_) {
-                if (todoStore.todos.isEmpty) {
-                  return const Center(
-                    child: Text('No todos available'),
-                  );
-                } else {
-                  return ListView.separated(
-                    separatorBuilder: (context, index) => const Divider(
-                      height: 10,
-                      color: Colors.black,
+            return Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: TextField(
+                    onChanged: (value) {
+                      todoStore.setSearchTerm(value);
+                    },
+                    decoration: const InputDecoration(
+                      labelText: 'Search',
+                      // hintText: 'Enter search term...',
+                      prefixIcon: Icon(Icons.search),
+                      border: OutlineInputBorder(),
                     ),
-                    itemCount: todoStore.todos.length,
-                    itemBuilder: (context, index) {
-                      final todo = todoStore.todos[index];
-                      return ListTile(
-                        onTap: () => _editTodoDescription(
-                          context,
-                          index,
-                          todo.title,
-                          todo.description,
-                        ),
-                        title: Text(todo.title),
-                        subtitle: Text(todo.description),
-                        leading: StatefulBuilder(
-                          builder: (context, setState) {
-                            return Checkbox(
-                              value: todo.completed,
-                              onChanged: (_) {
-                                setState(() {
-                                  todoStore.toggleCompleted(index);
-                                });
-                              },
+                  ),
+                ),
+                Expanded(
+                  child: Observer(
+                    builder: (_) {
+                      final todosToShow = todoStore.searchResults.isNotEmpty ? todoStore.searchResults : todoStore.todos;
+                      if (todosToShow.isEmpty) {
+                        return const Center(
+                          child: Text('No todos available'),
+                        );
+                      } else {
+                        return ListView.separated(
+                          separatorBuilder: (context, index) => const Divider(
+                            height: 10,
+                            color: Colors.black,
+                          ),
+                          itemCount: todosToShow.length,
+                          itemBuilder: (context, index) {
+                            final todo = todosToShow[index];
+                            return ListTile(
+                              onTap: () => _editTodoDescription(
+                                context,
+                                index,
+                                todo.title,
+                                todo.description,
+                              ),
+                              title: Text(todo.title),
+                              subtitle: Text(todo.description),
+                              leading: StatefulBuilder(
+                                builder: (context, setState) {
+                                  return Checkbox(
+                                    value: todo.completed,
+                                    onChanged: (_) {
+                                      setState(() {
+                                        todoStore.toggleCompleted(index);
+                                      });
+                                    },
+                                  );
+                                },
+                              ),
+                              trailing: IconButton(
+                                icon: const Icon(Icons.delete),
+                                onPressed: () => _confirmDelete(context, index, todoStore),
+                              ),
                             );
                           },
-                        ),
-                        trailing: IconButton(
-                          icon: const Icon(Icons.delete),
-                          onPressed: () => _confirmDelete(context, index, todoStore),
-                        ),
-                      );
+                        );
+                      }
                     },
-                  );
-                }
-              },
+                  ),
+                ),
+              ],
             );
           }
         },

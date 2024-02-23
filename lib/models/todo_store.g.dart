@@ -24,6 +24,54 @@ mixin _$TodoStore on _TodoStore, Store {
     });
   }
 
+  late final _$isSortAscendingAtom =
+      Atom(name: '_TodoStore.isSortAscending', context: context);
+
+  @override
+  bool get isSortAscending {
+    _$isSortAscendingAtom.reportRead();
+    return super.isSortAscending;
+  }
+
+  @override
+  set isSortAscending(bool value) {
+    _$isSortAscendingAtom.reportWrite(value, super.isSortAscending, () {
+      super.isSortAscending = value;
+    });
+  }
+
+  late final _$searchTermAtom =
+      Atom(name: '_TodoStore.searchTerm', context: context);
+
+  @override
+  String get searchTerm {
+    _$searchTermAtom.reportRead();
+    return super.searchTerm;
+  }
+
+  @override
+  set searchTerm(String value) {
+    _$searchTermAtom.reportWrite(value, super.searchTerm, () {
+      super.searchTerm = value;
+    });
+  }
+
+  late final _$searchResultsAtom =
+      Atom(name: '_TodoStore.searchResults', context: context);
+
+  @override
+  ObservableList<Todo> get searchResults {
+    _$searchResultsAtom.reportRead();
+    return super.searchResults;
+  }
+
+  @override
+  set searchResults(ObservableList<Todo> value) {
+    _$searchResultsAtom.reportWrite(value, super.searchResults, () {
+      super.searchResults = value;
+    });
+  }
+
   late final _$fetchTodosAsyncAction =
       AsyncAction('_TodoStore.fetchTodos', context: context);
 
@@ -80,9 +128,34 @@ mixin _$TodoStore on _TodoStore, Store {
   }
 
   @override
+  void sortTasksByCompletion() {
+    final _$actionInfo = _$_TodoStoreActionController.startAction(
+        name: '_TodoStore.sortTasksByCompletion');
+    try {
+      return super.sortTasksByCompletion();
+    } finally {
+      _$_TodoStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void setSearchTerm(String term) {
+    final _$actionInfo = _$_TodoStoreActionController.startAction(
+        name: '_TodoStore.setSearchTerm');
+    try {
+      return super.setSearchTerm(term);
+    } finally {
+      _$_TodoStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   String toString() {
     return '''
-todos: ${todos}
+todos: ${todos},
+isSortAscending: ${isSortAscending},
+searchTerm: ${searchTerm},
+searchResults: ${searchResults}
     ''';
   }
 }

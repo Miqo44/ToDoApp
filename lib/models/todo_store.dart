@@ -15,6 +15,12 @@ abstract class _TodoStore with Store {
   @observable
   bool isSortAscending = true;
 
+  @observable
+  String searchTerm = '';
+
+  @observable
+  ObservableList<Todo> searchResults = ObservableList<Todo>();
+
   @action
   Future<void> fetchTodos() async {
     try {
@@ -22,6 +28,7 @@ abstract class _TodoStore with Store {
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
         todos = data.map((item) => Todo.fromJson(item)).toList().asObservable();
+        filterTodos();
       } else {
         throw Exception('Failed to load todos');
       }
@@ -35,21 +42,25 @@ abstract class _TodoStore with Store {
   @action
   void addTodo(Todo todo) {
     todos.insert(0, todo);
+    filterTodos();
   }
 
   @action
   void deleteTodo(int index) {
     todos.removeAt(index);
+    filterTodos();
   }
 
   @action
   void editTodo(int index, Todo editedTodo) {
     todos[index] = editedTodo;
+    filterTodos();
   }
 
   @action
   void toggleCompleted(int index) {
     todos[index].completed = !todos[index].completed;
+    filterTodos();
   }
 
   @action
@@ -65,5 +76,20 @@ abstract class _TodoStore with Store {
     });
 
     isSortAscending = !isSortAscending;
+  }
+
+  @action
+  void setSearchTerm(String term) {
+    searchTerm = term;
+    filterTodos();
+  }
+
+  void filterTodos() {
+    if (searchTerm.isEmpty) {
+      searchResults = todos.asObservable();
+    } else {
+      final regex = RegExp(searchTerm, caseSensitive: false);
+      searchResults = todos.where((todo) => regex.hasMatch(todo.title)).toList().asObservable();
+    }
   }
 }

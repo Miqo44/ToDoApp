@@ -16,6 +16,9 @@ abstract class _TodoStore with Store {
   bool isSortAscending = true;
 
   @observable
+  bool showCompletedTasks = true;
+
+  @observable
   String searchTerm = '';
 
   @observable
@@ -46,10 +49,15 @@ abstract class _TodoStore with Store {
   }
 
   @action
-  void deleteTodo(int index) {
-    todos.removeAt(index);
+  void deleteTodo(int id) {
+    todos.removeWhere((todo) => todo.id == id);
+
+    if (searchResults.isNotEmpty) {
+      searchResults.removeWhere((searchedTodo) => searchedTodo.id == id);
+    }
     filterTodos();
   }
+
 
   @action
   void editTodo(int index, Todo editedTodo) {
@@ -59,9 +67,15 @@ abstract class _TodoStore with Store {
 
   @action
   void toggleCompleted(int index) {
-    todos[index].completed = !todos[index].completed;
+    if (searchResults.isNotEmpty) {
+      final todoIndex = todos.indexOf(searchResults[index]);
+      todos[todoIndex].completed = !todos[todoIndex].completed;
+    } else {
+      todos[index].completed = !todos[index].completed;
+    }
     filterTodos();
   }
+
 
   @action
   void sortTasksByCompletion() {
@@ -76,6 +90,7 @@ abstract class _TodoStore with Store {
     });
 
     isSortAscending = !isSortAscending;
+    filterTodos();
   }
 
   @action
@@ -86,10 +101,24 @@ abstract class _TodoStore with Store {
 
   void filterTodos() {
     if (searchTerm.isEmpty) {
-      searchResults = todos.asObservable();
+      if (showCompletedTasks) {
+        searchResults = todos.asObservable();
+      } else {
+        searchResults = todos.where((todo) => !todo.completed).toList().asObservable();
+      }
     } else {
       final regex = RegExp(searchTerm, caseSensitive: false);
-      searchResults = todos.where((todo) => regex.hasMatch(todo.title)).toList().asObservable();
+      if (showCompletedTasks) {
+        searchResults = todos.where((todo) => regex.hasMatch(todo.title)).toList().asObservable();
+      } else {
+        searchResults = todos.where((todo) => !todo.completed && regex.hasMatch(todo.title)).toList().asObservable();
+      }
     }
+  }
+
+  @action
+  void toggle(bool value) {
+    value = !value;
+    filterTodos();
   }
 }

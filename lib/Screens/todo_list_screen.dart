@@ -8,7 +8,7 @@ import 'edit_screen.dart';
 class TodoListScreen extends StatelessWidget {
   final TodoStore todoStore;
 
-  const TodoListScreen({Key? key, required this.todoStore}) : super(key: key);
+  const TodoListScreen({super.key, required this.todoStore});
 
   @override
   Widget build(BuildContext context) {
@@ -16,14 +16,16 @@ class TodoListScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('MobX Todo App'),
         centerTitle: true,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.sort),
-            onPressed: () {
-              todoStore.sortTasksByCompletion();
-            },
-          ),
-        ],
+        // actions: [
+        //   Observer(
+        //     builder: (_) => Checkbox(
+        //       value: todoStore.showCompletedTasks,
+        //       onChanged: (value) {
+        //         todoStore.showCompletedTasks = value!;
+        //       },
+        //     ),
+        //   ),
+        // ],
       ),
       body: FutureBuilder<void>(
         future: todoStore.fetchTodos(),
@@ -79,16 +81,10 @@ class TodoListScreen extends StatelessWidget {
                               ),
                               title: Text(todo.title),
                               subtitle: Text(todo.description),
-                              leading: StatefulBuilder(
-                                builder: (context, setState) {
-                                  return Checkbox(
-                                    value: todo.completed,
-                                    onChanged: (_) {
-                                      setState(() {
-                                        todoStore.toggleCompleted(index);
-                                      });
-                                    },
-                                  );
+                              leading: Checkbox(
+                                value: todo.completed,
+                                onChanged: (value) {
+                                  todoStore.toggleCompleted(index);
                                 },
                               ),
                               trailing: IconButton(
@@ -138,14 +134,24 @@ class TodoListScreen extends StatelessWidget {
     );
 
     if (editedData != null) {
-      final editedTodo = todoStore.todos[index].copyWith(
+      final editedTodo = todoStore.searchResults.isNotEmpty
+          ? todoStore.searchResults[index].copyWith(
+        title: editedData['title'] ?? currentTitle,
+        description: editedData['description'] ?? currentDescription,
+      )
+          : todoStore.todos[index].copyWith(
         title: editedData['title'] ?? currentTitle,
         description: editedData['description'] ?? currentDescription,
       );
 
-      todoStore.editTodo(index, editedTodo);
+      if (todoStore.searchResults.isNotEmpty) {
+        todoStore.editTodo(todoStore.todos.indexOf(todoStore.searchResults[index]), editedTodo);
+      } else {
+        todoStore.editTodo(index, editedTodo);
+      }
     }
   }
+
 
   Future<void> _confirmDelete(BuildContext context, int index, TodoStore todoStore) async {
     final confirmed = await showDialog<bool>(
@@ -173,7 +179,8 @@ class TodoListScreen extends StatelessWidget {
     );
 
     if (confirmed != null && confirmed) {
-      todoStore.deleteTodo(index);
+      final todo = todoStore.todos.firstWhere((todo) => todo.id == todoStore.searchResults[index].id);
+      todoStore.deleteTodo(todo.id);
     }
   }
 }

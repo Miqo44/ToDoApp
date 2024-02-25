@@ -40,6 +40,22 @@ mixin _$TodoStore on _TodoStore, Store {
     });
   }
 
+  late final _$showCompletedTasksAtom =
+      Atom(name: '_TodoStore.showCompletedTasks', context: context);
+
+  @override
+  bool get showCompletedTasks {
+    _$showCompletedTasksAtom.reportRead();
+    return super.showCompletedTasks;
+  }
+
+  @override
+  set showCompletedTasks(bool value) {
+    _$showCompletedTasksAtom.reportWrite(value, super.showCompletedTasks, () {
+      super.showCompletedTasks = value;
+    });
+  }
+
   late final _$searchTermAtom =
       Atom(name: '_TodoStore.searchTerm', context: context);
 
@@ -95,11 +111,11 @@ mixin _$TodoStore on _TodoStore, Store {
   }
 
   @override
-  void deleteTodo(int index) {
+  void deleteTodo(int id) {
     final _$actionInfo =
         _$_TodoStoreActionController.startAction(name: '_TodoStore.deleteTodo');
     try {
-      return super.deleteTodo(index);
+      return super.deleteTodo(id);
     } finally {
       _$_TodoStoreActionController.endAction(_$actionInfo);
     }
@@ -150,10 +166,22 @@ mixin _$TodoStore on _TodoStore, Store {
   }
 
   @override
+  void toggle(bool value) {
+    final _$actionInfo =
+        _$_TodoStoreActionController.startAction(name: '_TodoStore.toggle');
+    try {
+      return super.toggle(value);
+    } finally {
+      _$_TodoStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   String toString() {
     return '''
 todos: ${todos},
 isSortAscending: ${isSortAscending},
+showCompletedTasks: ${showCompletedTasks},
 searchTerm: ${searchTerm},
 searchResults: ${searchResults}
     ''';

@@ -121,9 +121,8 @@ class TodoListScreen extends StatelessWidget {
     );
   }
 
-  Future<void> _editTodoDescription(BuildContext context, int index,
-      String currentTitle, String currentDescription) async {
-    final editedData = await showDialog<Map<String, String>>(
+  Future<void> _editTodoDescription(BuildContext context, int index, String currentTitle, String currentDescription) async {
+    final result = await showDialog(
       context: context,
       builder: (BuildContext context) {
         return EditDescriptionDialog(
@@ -133,19 +132,24 @@ class TodoListScreen extends StatelessWidget {
       },
     );
 
-    if (editedData != null) {
+    if (result == 'delete') {
+      _confirmDelete(context, index, todoStore);
+    } else if (result != null && result is Map<String, String>) {
       final editedTodo = todoStore.searchResults.isNotEmpty
           ? todoStore.searchResults[index].copyWith(
-        title: editedData['title'] ?? currentTitle,
-        description: editedData['description'] ?? currentDescription,
+        title: result['title'] ?? currentTitle,
+        description: result['description'] ?? currentDescription,
       )
           : todoStore.todos[index].copyWith(
-        title: editedData['title'] ?? currentTitle,
-        description: editedData['description'] ?? currentDescription,
+        title: result['title'] ?? currentTitle,
+        description: result['description'] ?? currentDescription,
       );
 
       if (todoStore.searchResults.isNotEmpty) {
-        todoStore.editTodo(todoStore.todos.indexOf(todoStore.searchResults[index]), editedTodo);
+        todoStore.editTodo(
+          todoStore.todos.indexOf(todoStore.searchResults[index]),
+          editedTodo,
+        );
       } else {
         todoStore.editTodo(index, editedTodo);
       }

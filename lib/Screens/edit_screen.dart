@@ -5,10 +5,10 @@ class EditDescriptionDialog extends StatefulWidget {
   final String currentDescription;
 
   const EditDescriptionDialog({
-    super.key,
+    Key? key,
     required this.currentTitle,
     required this.currentDescription,
-  });
+  }) : super(key: key);
 
   @override
   _EditDescriptionDialogState createState() => _EditDescriptionDialogState();
@@ -22,8 +22,7 @@ class _EditDescriptionDialogState extends State<EditDescriptionDialog> {
   void initState() {
     super.initState();
     _titleController = TextEditingController(text: widget.currentTitle);
-    _descriptionController =
-        TextEditingController(text: widget.currentDescription);
+    _descriptionController = TextEditingController(text: widget.currentDescription);
   }
 
   @override
@@ -46,6 +45,12 @@ class _EditDescriptionDialogState extends State<EditDescriptionDialog> {
       actions: <Widget>[
         TextButton(
           onPressed: () {
+            Navigator.of(context).pop('delete');
+          },
+          child: const Text('Delete',style: TextStyle(color: Colors.red),),
+        ),
+        TextButton(
+          onPressed: () {
             Navigator.of(context).pop();
           },
           child: const Text('Cancel'),
@@ -57,7 +62,7 @@ class _EditDescriptionDialogState extends State<EditDescriptionDialog> {
               'description': _descriptionController.text,
             });
           },
-          child: const Text('Save'),
+          child: const Text('Save',style: TextStyle(color: Colors.green),),
         ),
       ],
     );

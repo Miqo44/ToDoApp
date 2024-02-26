@@ -16,16 +16,17 @@ class TodoListScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('MobX Todo App'),
         centerTitle: true,
-        // actions: [
-        //   Observer(
-        //     builder: (_) => Checkbox(
-        //       value: todoStore.showCompletedTasks,
-        //       onChanged: (value) {
-        //         todoStore.showCompletedTasks = value!;
-        //       },
-        //     ),
-        //   ),
-        // ],
+        actions: [
+          Observer(
+            builder: (_) => Checkbox(
+              value: todoStore.isSortAscending,
+              onChanged: (value) {
+                // Изменение состояния чекбокса и вызов метода сортировки
+                todoStore.sortTasksByCompletion();
+              },
+            ),
+          ),
+        ],
       ),
       body: FutureBuilder<void>(
         future: todoStore.fetchTodos(),

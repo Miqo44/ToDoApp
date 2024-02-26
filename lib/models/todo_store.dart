@@ -13,7 +13,7 @@ abstract class _TodoStore with Store {
   ObservableList<Todo> todos = ObservableList<Todo>();
 
   @observable
-  bool isSortAscending = true;
+  bool isSortAscending = false;
 
   @observable
   bool showCompletedTasks = true;
@@ -81,17 +81,18 @@ abstract class _TodoStore with Store {
   void sortTasksByCompletion() {
     todos.sort((a, b) {
       if (a.completed && !b.completed) {
-        return isSortAscending ? -1 : 1;
-      } else if (!a.completed && b.completed) {
         return isSortAscending ? 1 : -1;
+      } else if (!a.completed && b.completed) {
+        return isSortAscending ? -1 : 1;
       } else {
         return 0;
       }
     });
 
-    isSortAscending = !isSortAscending;
+    isSortAscending = !isSortAscending; // Инвертирование значения
     filterTodos();
   }
+
 
   @action
   void setSearchTerm(String term) {

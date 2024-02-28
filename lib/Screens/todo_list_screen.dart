@@ -21,7 +21,6 @@ class TodoListScreen extends StatelessWidget {
             builder: (_) => Checkbox(
               value: todoStore.isSortAscending,
               onChanged: (value) {
-                // Изменение состояния чекбокса и вызов метода сортировки
                 todoStore.sortTasksByCompletion();
               },
             ),
@@ -50,7 +49,6 @@ class TodoListScreen extends StatelessWidget {
                     },
                     decoration: const InputDecoration(
                       labelText: 'Search',
-                      // hintText: 'Enter search term...',
                       prefixIcon: Icon(Icons.search),
                       border: OutlineInputBorder(),
                     ),
@@ -168,13 +166,13 @@ class TodoListScreen extends StatelessWidget {
           actions: <Widget>[
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop(false); // Not confirmed
+                Navigator.of(context).pop(false);
               },
               child: const Text('Cancel'),
             ),
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop(true); // Confirmed
+                Navigator.of(context).pop(true);
               },
               child: const Text('Delete'),
             ),

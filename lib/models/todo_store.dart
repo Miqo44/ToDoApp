@@ -89,7 +89,7 @@ abstract class _TodoStore with Store {
       }
     });
 
-    isSortAscending = !isSortAscending; // Инвертирование значения
+    isSortAscending = !isSortAscending;
     filterTodos();
   }
 

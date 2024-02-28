@@ -58,7 +58,9 @@ class TodoListScreen extends StatelessWidget {
                   child: Observer(
                     builder: (_) {
                       final todosToShow = todoStore.searchResults.isNotEmpty ? todoStore.searchResults : todoStore.todos;
-                      if (todosToShow.isEmpty) {
+                      final bool noMatches = todoStore.searchResults.isEmpty && todoStore.searchTerm.isNotEmpty;
+
+                      if (noMatches) {
                         return const Center(
                           child: Text('No todos available'),
                         );

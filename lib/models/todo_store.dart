@@ -16,7 +16,7 @@ abstract class _TodoStore with Store {
   bool isSortAscending = false;
 
   @observable
-  bool showCompletedTasks = true;
+  bool showCompletedTasks = false;
 
   @observable
   String searchTerm = '';
@@ -79,19 +79,16 @@ abstract class _TodoStore with Store {
 
   @action
   void sortTasksByCompletion() {
-    todos.sort((a, b) {
-      if (a.completed && !b.completed) {
-        return isSortAscending ? 1 : -1;
-      } else if (!a.completed && b.completed) {
-        return isSortAscending ? -1 : 1;
-      } else {
-        return 0;
-      }
-    });
+    showCompletedTasks = !isSortAscending; // Переключаем флаг показа выполненных задач
+    isSortAscending = !isSortAscending; // Инвертируем флаг сортировки
 
-    isSortAscending = !isSortAscending;
-    filterTodos();
+    if (showCompletedTasks) {
+      searchResults = todos.where((todo) => todo.completed).toList().asObservable();
+    } else {
+      searchResults = todos.asObservable();
+    }
   }
+
 
 
   @action
@@ -105,17 +102,26 @@ abstract class _TodoStore with Store {
       if (showCompletedTasks) {
         searchResults = todos.asObservable();
       } else {
-        searchResults = todos.where((todo) => !todo.completed).toList().asObservable();
+        if (isSortAscending) {
+          searchResults = todos.where((todo) => !todo.completed).toList().asObservable();
+        } else {
+          searchResults = todos.toList().asObservable();
+        }
       }
     } else {
       final regex = RegExp(searchTerm, caseSensitive: false);
       if (showCompletedTasks) {
         searchResults = todos.where((todo) => regex.hasMatch(todo.title)).toList().asObservable();
       } else {
-        searchResults = todos.where((todo) => !todo.completed && regex.hasMatch(todo.title)).toList().asObservable();
+        if (isSortAscending) {
+          searchResults = todos.where((todo) => !todo.completed && regex.hasMatch(todo.title)).toList().asObservable();
+        } else {
+          searchResults = todos.where((todo) => regex.hasMatch(todo.title)).toList().asObservable();
+        }
       }
     }
   }
+
 
   @action
   void toggle(bool value) {
